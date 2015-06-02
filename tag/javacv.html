@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Xiaomeng's Notes</title>
+    <meta name="description" content="">
+    <meta name="author" content="XiaomengZhao">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="../theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="../theme/bootstrap.min.css" rel="stylesheet">
+    <link href="../theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="../theme/local.css" rel="stylesheet">
+    <link href="../theme/pygments.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href="..">Xiaomeng's Notes</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+        
+
+        
+
+
+    <div class='article'>
+        <div class="content-title">
+            <a href="../pages/2013/12/16/javacv_detect_people.html"><h1>使用JavaCV进行人员检测</h1></a>
+Mon 16 December 2013
+
+by <a class="url fn" href="../author/xiaomengzhao.html">XiaomengZhao</a>
+ 
+
+
+ 
+        </div>
+        
+        <div><p>JavaCV是OpenCV的Wrapper，通过JNI调用OpenCV，按理说JavaCV和OpenCV应该是等价的，但是JavaCV并不像最近比较新的使用python调用OpenCV那么完善，没有例子，没有API文档，在使用中间会遇到各种问题，特以此文来记录自己遇到的问题和如何解决。</p>
+<p>1. 如何新建一个JavaCV的Maven工程</p>
+<p>在pom.xml中加入：</p>
+<p>标签<code>&lt;repostiories&gt;</code>中加入javacv的远程仓库地址：</p>
+<div class="highlight"><pre><span class="nt">&lt;repository&gt;</span>
+   <span class="nt">&lt;id&gt;</span>javacv repo<span class="nt">&lt;/id&gt;</span>
+   <span class="nt">&lt;url&gt;</span> http://maven2.javacv.googlecode.com/git/<span class="nt">&lt;/url&gt;</span>
+<span class="nt">&lt;/repository&gt;</span>
+</pre></div>
+
+
+<p>标签<code>&lt;dependencies&gt;</code>中加入javacv的相关依赖：</p>
+<div class="highlight"><pre><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>com.googlecode.javacv<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>javacv<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>0.6<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>com.googlecode.javacv<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>javacv<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;classifier&gt;</span>macosx-x86_64<span class="nt">&lt;/classifier&gt;</span>
+    <span class="nt">&lt;version&gt;</span>0.6<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+
+
+<p>2. 如何改写OpenCV程序为JavaCV程序</p>
+<p>请参考<a href="https://code.google.com/p/javacv/wiki/ConvertingOpenCV">https://code.google.com/p/javacv/wiki/ConvertingOpenCV</a>，然后再进行JavaCV程序的编写。</p>
+<p>3. 使用JavaCV进行人员检测</p>
+<p>本程序参考了<strong>python</strong>版本的OpenCV人员检测范例<strong>peopledetect.py</strong>.（╮(╯▽╰)╭ 爱python一辈子）</p>
+<p>程序的基本逻辑是使用HOG进行人员检测，有两点比较tricky:</p>
+<p>(1) 使用HOG检测会得到很多矩形，我们只想要最外面的矩形，即如果矩形A不在其他所有的矩形中，不被所有其他矩形所包含，我们就认为这个矩形是我们想要的。</p>
+<p>(2) HOG一般返回的矩形都比实际的物体要大，所以我们收缩了矩形，使得它圈人圈的更精确。</p>
+<p>下面是我的代码：</p>
+<div class="highlight"><pre><span class="n">import</span> <span class="k">static</span> <span class="n">com</span><span class="p">.</span><span class="n">googlecode</span><span class="p">.</span><span class="n">javacv</span><span class="p">.</span><span class="n">cpp</span><span class="p">.</span><span class="n">opencv_core</span><span class="p">.</span><span class="o">*</span><span class="p">;</span>
+<span class="n">import</span> <span class="k">static</span> <span class="n">com</span><span class="p">.</span><span class="n">googlecode</span><span class="p">.</span><span class="n">javacv</span><span class="p">.</span><span class="n">cpp</span><span class="p">.</span><span class="n">opencv_highgui</span><span class="p">.</span><span class="o">*</span><span class="p">;</span>
+
+<span class="n">import</span> <span class="n">java</span><span class="p">.</span><span class="n">awt</span><span class="p">.</span><span class="n">event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">;</span>
+
+<span class="n">import</span> <span class="n">org</span><span class="p">.</span><span class="n">junit</span><span class="p">.</span><span class="n">Test</span><span class="p">;</span>
+
+<span class="n">import</span> <span class="n">com</span><span class="p">.</span><span class="n">googlecode</span><span class="p">.</span><span class="n">javacv</span><span class="p">.</span><span class="n">CanvasFrame</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">com</span><span class="p">.</span><span class="n">googlecode</span><span class="p">.</span><span class="n">javacv</span><span class="p">.</span><span class="n">cpp</span><span class="p">.</span><span class="n">opencv_objdetect</span><span class="p">.</span><span class="n">HOGDescriptor</span><span class="p">;</span>
+
+
+<span class="n">public</span> <span class="n">class</span> <span class="n">PeopleDetectInImage</span> <span class="p">{</span>
+
+    <span class="c1">//如果r在q中则返回true，否则返回false</span>
+    <span class="n">public</span> <span class="n">boolean</span> <span class="n">inside</span><span class="p">(</span><span class="n">CvRect</span> <span class="n">r</span><span class="p">,</span> <span class="n">CvRect</span> <span class="n">q</span><span class="p">){</span>
+        <span class="kt">int</span> <span class="n">rx</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">ry</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">y</span><span class="p">(),</span> <span class="n">rw</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">width</span><span class="p">(),</span> <span class="n">rh</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">height</span><span class="p">();</span>
+        <span class="kt">int</span> <span class="n">qx</span> <span class="o">=</span> <span class="n">q</span><span class="p">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">qy</span> <span class="o">=</span> <span class="n">q</span><span class="p">.</span><span class="n">y</span><span class="p">(),</span> <span class="n">qw</span> <span class="o">=</span> <span class="n">q</span><span class="p">.</span><span class="n">width</span><span class="p">(),</span> <span class="n">qh</span> <span class="o">=</span> <span class="n">q</span><span class="p">.</span><span class="n">height</span><span class="p">();</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">rx</span> <span class="o">&gt;</span> <span class="n">qx</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">ry</span> <span class="o">&gt;</span> <span class="n">qy</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">((</span><span class="n">rx</span> <span class="o">+</span> <span class="n">rw</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">qx</span> <span class="o">+</span> <span class="n">qw</span><span class="p">))</span> <span class="o">&amp;&amp;</span> <span class="p">((</span><span class="n">ry</span> <span class="o">+</span> <span class="n">rh</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">qy</span> <span class="o">+</span> <span class="n">qh</span><span class="p">));</span>
+    <span class="p">}</span>
+
+    <span class="c1">//由于HOG描述子返回的矩形都比实际的物体大一点</span>
+    <span class="c1">// 所以我们缩小一下矩形已返回更好的结果</span>
+    <span class="n">public</span> <span class="n">IplImage</span> <span class="n">draw_detection</span><span class="p">(</span><span class="n">CvRect</span> <span class="n">r</span><span class="p">,</span> <span class="n">IplImage</span> <span class="n">img</span><span class="p">){</span>
+        <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">y</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">y</span><span class="p">(),</span> <span class="n">w</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">width</span><span class="p">(),</span> <span class="n">h</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">height</span><span class="p">();</span>
+        <span class="kt">int</span> <span class="n">pad_w</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="p">(</span><span class="mf">0.15</span><span class="o">*</span><span class="n">w</span><span class="p">),</span> <span class="n">pad_h</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="p">(</span><span class="mf">0.05</span><span class="o">*</span><span class="n">h</span><span class="p">);</span>
+        <span class="n">cvRectangle</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cvPoint</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">pad_w</span><span class="p">,</span> <span class="n">y</span><span class="o">+</span><span class="n">pad_h</span><span class="p">),</span><span class="n">cvPoint</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">w</span><span class="o">-</span><span class="n">pad_w</span><span class="p">,</span> <span class="n">y</span><span class="o">+</span><span class="n">h</span><span class="o">-</span><span class="n">pad_h</span><span class="p">),</span> <span class="n">CvScalar</span><span class="p">.</span><span class="n">GREEN</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">CV_AA</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">img</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="err">@</span><span class="n">Test</span>
+    <span class="n">public</span> <span class="kt">void</span> <span class="n">detect_peoples</span><span class="p">()</span> <span class="n">throws</span> <span class="n">Exception</span> <span class="p">{</span>
+        <span class="n">CanvasFrame</span> <span class="n">canvasFrame</span> <span class="o">=</span> <span class="n">new</span> <span class="n">CanvasFrame</span><span class="p">(</span><span class="s">&quot;HOG-Test&quot;</span><span class="p">);</span>
+
+        <span class="n">HOGDescriptor</span> <span class="n">hog</span> <span class="o">=</span> <span class="n">new</span> <span class="n">HOGDescriptor</span><span class="p">();</span>
+        <span class="n">hog</span><span class="p">.</span><span class="n">setSVMDetector</span><span class="p">(</span><span class="n">HOGDescriptor</span><span class="p">.</span><span class="n">getDefaultPeopleDetector</span><span class="p">());</span>
+
+        <span class="n">IplImage</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">cvLoadImage</span><span class="p">(</span><span class="s">&quot;/Users/zhaoxm/InBUPT/test_pics/test.jpg&quot;</span><span class="p">);</span>
+
+        <span class="n">IplImage</span> <span class="n">frame_clone</span> <span class="o">=</span> <span class="n">null</span><span class="p">;</span>
+
+        <span class="n">CvRect</span> <span class="n">found</span><span class="o">=</span><span class="n">new</span> <span class="n">CvRect</span><span class="p">();</span>
+
+        <span class="n">hog</span><span class="p">.</span><span class="n">detectMultiScale</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">found</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">cvSize</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">),</span> <span class="n">cvSize</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span> <span class="mf">1.05</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span>
+
+        <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">found</span><span class="p">.</span><span class="n">capacity</span><span class="p">());</span>
+
+        <span class="c1">//找到最外面的矩形</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">found</span><span class="p">.</span><span class="n">capacity</span><span class="p">();</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">CvRect</span> <span class="n">r</span> <span class="o">=</span> <span class="n">found</span><span class="p">.</span><span class="n">position</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+
+            <span class="n">boolean</span> <span class="n">sign</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span> <span class="c1">//true代表矩形是里面的，false代表矩形是最外面的</span>
+
+            <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">j</span><span class="o">&lt;</span><span class="n">found</span><span class="p">.</span><span class="n">capacity</span><span class="p">();</span><span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">i</span> <span class="o">!=</span> <span class="n">j</span><span class="p">){</span>  <span class="c1">//不是同一个矩形</span>
+                    <span class="n">CvRect</span> <span class="n">q</span> <span class="o">=</span> <span class="n">found</span><span class="p">.</span><span class="n">position</span><span class="p">(</span><span class="n">j</span><span class="p">);</span>
+                    <span class="k">if</span><span class="p">(</span><span class="n">inside</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">q</span><span class="p">)){</span>
+                        <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">r</span><span class="p">);</span>
+                        <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">q</span><span class="p">);</span>
+                        <span class="n">sign</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+                        <span class="k">break</span><span class="p">;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+                <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">sign</span><span class="p">){</span> <span class="c1">//r是最外面的框框</span>
+                    <span class="n">frame</span> <span class="o">=</span> <span class="n">draw_detection</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">frame</span><span class="p">);</span>
+                    <span class="c1">//cvRectangle(frame, cvPoint(r.x(), r.y()),cvPoint(r.x() + r.width(), r.y() + r.height()), CvScalar.GREEN, 2, CV_AA, 0);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="n">cvSaveImage</span><span class="p">(</span><span class="s">&quot;/Users/zhaoxm/InBUPT/test_pics/peoples.png&quot;</span><span class="p">,</span><span class="n">frame</span><span class="p">);</span>
+         <span class="n">canvasFrame</span><span class="p">.</span><span class="n">showImage</span><span class="p">(</span><span class="n">frame</span><span class="p">);</span>
+         <span class="n">KeyEvent</span> <span class="n">key</span> <span class="o">=</span> <span class="n">canvasFrame</span><span class="p">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+         <span class="k">if</span> <span class="p">(</span><span class="n">key</span> <span class="o">!=</span> <span class="n">null</span><span class="p">)</span> <span class="p">{</span>
+             <span class="n">cvReleaseImage</span><span class="p">(</span><span class="n">frame</span><span class="p">);</span>
+             <span class="n">canvasFrame</span><span class="p">.</span><span class="n">dispose</span><span class="p">();</span>
+         <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">public</span> <span class="k">static</span> <span class="kt">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="n">throws</span> <span class="n">Exception</span> <span class="p">{</span>
+        <span class="n">PeopleDetectInImage</span> <span class="n">detector</span> <span class="o">=</span> <span class="n">new</span> <span class="n">PeopleDetectInImage</span><span class="p">();</span>
+        <span class="n">detector</span><span class="p">.</span><span class="n">detect_peoples</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>程序运行结果如下：
+<img alt="img" src="https://lh5.googleusercontent.com/-Y5dk_0o9en4/Uq8MAu5zNHI/AAAAAAAAAA0/UXw3DFBJwZc/s718/peoples.png" /></p>
+<p>结果还算不错。其中最重要的函数是<code>detectMultiScale</code>，具体每个参数的解释见OpenCV文档：</p>
+<blockquote>
+<p>C++: void gpu::HOGDescriptor::detectMultiScale(const GpuMat&amp; img, vector<Rect>&amp; found_locations, double hit_threshold=0, Size win_stride=Size(), Size padding=Size(), double scale0=1.05, int group_threshold=2)¶</p>
+<p>Parameters:</p>
+<ul>
+<li>img – Source image. See gpu::HOGDescriptor::detect() for type limitations.</li>
+<li>found_locations – Detected objects boundaries.</li>
+<li>hit_threshold – Threshold for the distance between features and SVM classifying plane. See gpu::HOGDescriptor::detect() for details.</li>
+<li>win_stride – Window stride. It must be a multiple of block stride.</li>
+<li>padding – Mock parameter to keep the CPU interface compatibility. It must be (0,0).</li>
+<li>scale0 – Coefficient of the detection window increase.</li>
+<li>group_threshold – Coefficient to regulate the similarity threshold. When detected, some objects can be covered by many rectangles. 0 means not to perform grouping. See groupRectangles() .</li>
+</ul>
+</blockquote></div>
+        <hr />
+    </div>
+		
+<div class="pagination">
+<ul>
+    <li class="prev disabled"><a href="#">&larr; Previous</a></li>
+
+    <li class="active"><a href="../tag/javacv.html">1</a></li>
+
+    <li class="next disabled"><a href="#">&rarr; Next</a></li>
+
+</ul>
+</div>
+ 
+  
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="../archives.html">Archives</a>
+                <li><a href="../tags.html">Tags</a>
+                <li><a href="xmpy.github.io/" rel="alternate">Atom feed</a></li>
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="../category/code-snippets.html">Code Snippets</a></li>
+                <li><a href="../category/computer-vision.html">Computer Vision</a></li>
+                <li><a href="../category/javaxiang-guan-ji-zhu.html">Java相关技术</a></li>
+                <li><a href="../category/ji-chu-suan-fa.html">基础算法</a></li>
+                <li><a href="../category/qian-duan-ji-zhu-front-end.html">前端技术 Front-End</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="/archives.html">Archive</a></li>
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href="..">Xiaomeng's Notes</a> &copy; XiaomengZhao 2012</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="http://twitter.github.com/bootstrap/assets/js/bootstrap-collapse.js"></script>
+<a href="http://github.com/xmpy"><img style="position: absolute; top: 40px; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" /></a>
+ 
+</body>
+</html>

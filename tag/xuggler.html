@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Xiaomeng's Notes</title>
+    <meta name="description" content="">
+    <meta name="author" content="XiaomengZhao">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="../theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="../theme/bootstrap.min.css" rel="stylesheet">
+    <link href="../theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="../theme/local.css" rel="stylesheet">
+    <link href="../theme/pygments.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href="..">Xiaomeng's Notes</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+        
+
+        
+
+
+    <div class='article'>
+        <div class="content-title">
+            <a href="../pages/2013/12/13/xuggle_tutorial_1.html"><h1>Xuggler tutorial 1 使用xuggle进行视频操作（译+修改）</h1></a>
+Fri 13 December 2013
+
+by <a class="url fn" href="../author/xiaomengzhao.html">XiaomengZhao</a>
+ 
+
+
+ 
+        </div>
+        
+        <div><h6>原文网址：http://www.javacodegeeks.com/2011/02/introduction-xuggler-video-manipulation.html</h6>
+<p>随着互联网视频数量的爆发，开发者需要在他们的应用中非常频繁地操作视频数据。Xuggle为Java开发者提供的开源的库，能够解压，处理和压缩存储的视频数据和实时的现场直播的视频数据。Xuggle使用了非常强有力的FFmpeg媒体操作库，是FFPEG的Java Wrapper，使得开发能够使用Java更好的解压，修改媒体文件。</p>
+<p>FFmpeg是一个完整的，跨平台的用来记录，转换，流式化音频和视频文件，支持多种格式。可能您不清楚你在使用它，但是其实你已经在使用了。但是，Xuggle不仅仅是提供给你使用复杂的FFmpeg的简单方法。Xuggle dev团队还在帮助优化FFmpeg。</p>
+<p>然后我们需要安装FFmpeg。注意Xuggle自带了FFmpeg（优化过的）来避免错误的配置，所以你不需要自己手动的获取FFmpeg。但是在这个教程中，我们在使用Xuggle之前，需要使用FFmpeg测试一些操作，所以我们需要先分开安装FFmpeg。</p>
+<p>去<a href="http://ffmpeg.org/download.html">FFmpeg下载页</a>下载。Linux可以下载源代码然后编译（注：Linux其实也有编译好的包）。而Windows的话，可以下载编译好的二进制包，然后可以找到ffmpeg.exe执行程序。将它拷贝到特定目录，并将这个目录加到windows的环境变量中。</p>
+<p>为了检查FFmpeg是否正常工作，我们可以直接输入FFmpeg。你可以看到类似的输出：</p>
+<div class="highlight"><pre><span class="n">ffmpeg</span> <span class="n">version</span> <span class="mf">2.1.1</span><span class="o">-</span><span class="n">tessus</span> <span class="n">Copyright</span> <span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="mi">2000</span><span class="o">-</span><span class="mi">2013</span> <span class="n">the</span> <span class="n">FFmpeg</span> <span class="n">developers</span>
+<span class="n">built</span> <span class="n">on</span> <span class="n">Nov</span> <span class="mi">21</span> <span class="mi">2013</span> <span class="mi">13</span><span class="o">:</span><span class="mi">33</span><span class="o">:</span><span class="mi">40</span> <span class="n">with</span> <span class="n">llvm</span><span class="o">-</span><span class="n">gcc</span> <span class="mf">4.2.1</span> <span class="p">(</span><span class="n">LLVM</span> <span class="n">build</span> <span class="mf">2336.1.00</span><span class="p">)</span>
+<span class="nl">configuration:</span> <span class="o">--</span> <span class="n">prefix</span><span class="o">=/</span><span class="n">Users</span><span class="o">/</span><span class="n">tessus</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">ext</span><span class="o">/</span><span class="n">ffmpeg</span><span class="o">/</span><span class="n">sw</span> <span class="o">--</span><span class="n">as</span><span class="o">=</span><span class="n">yasm</span> <span class="o">--</span><span class="n">extra</span><span class="o">-</span><span class="n">version</span><span class="o">=</span><span class="n">tessus</span> <span class="o">--</span><span class="n">disable</span><span class="o">-</span><span class="n">shared</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="k">static</span> <span class="o">--</span><span class="n">disable</span><span class="o">-</span><span class="n">ffplay</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">gpl</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">pthreads</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">postproc</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">libmp3lame</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">libtheora</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">libvorbis</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">libx264</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">libxvid</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">libspeex</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">bzlib</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">zlib</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">libopencore</span><span class="o">-</span><span class="n">amrnb</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">libopencore</span><span class="o">-</span><span class="n">amrwb</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">libxavs</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">version3</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">libvo</span><span class="o">-</span><span class="n">aacenc</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">libvo</span><span class="o">-</span><span class="n">amrwbenc</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">libvpx</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">libgsm</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">libopus</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">fontconfig</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">libfreetype</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">libass</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">libbluray</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">filters</span> <span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">runtime</span><span class="o">-</span><span class="n">cpudetect</span>
+<span class="n">libavutil</span>      <span class="mf">52.</span> <span class="mf">48.101</span> <span class="o">/</span> <span class="mf">52.</span> <span class="mf">48.101</span>
+<span class="n">libavcodec</span>     <span class="mf">55.</span> <span class="mf">39.101</span> <span class="o">/</span> <span class="mf">55.</span> <span class="mf">39.101</span>
+<span class="n">libavformat</span>    <span class="mf">55.</span> <span class="mf">19.104</span> <span class="o">/</span> <span class="mf">55.</span> <span class="mf">19.104</span>
+<span class="n">libavdevice</span>    <span class="mf">55.</span>  <span class="mf">5.100</span> <span class="o">/</span> <span class="mf">55.</span>  <span class="mf">5.100</span>
+<span class="n">libavfilter</span>     <span class="mf">3.</span> <span class="mf">90.100</span> <span class="o">/</span>  <span class="mf">3.</span> <span class="mf">90.100</span>
+<span class="n">libswscale</span>      <span class="mf">2.</span>  <span class="mf">5.101</span> <span class="o">/</span>  <span class="mf">2.</span>  <span class="mf">5.101</span>
+<span class="n">libswresample</span>   <span class="mf">0.</span> <span class="mf">17.104</span> <span class="o">/</span>  <span class="mf">0.</span> <span class="mf">17.104</span>
+<span class="n">libpostproc</span>    <span class="mf">52.</span>  <span class="mf">3.100</span> <span class="o">/</span> <span class="mf">52.</span>  <span class="mf">3.100</span>
+<span class="n">Hyper</span> <span class="n">fast</span> <span class="n">Audio</span> <span class="n">and</span> <span class="n">Video</span> <span class="n">encoder</span>
+<span class="nl">usage:</span> <span class="n">ffmpeg</span> <span class="p">[</span><span class="n">options</span><span class="p">]</span> <span class="p">[[</span><span class="n">infile</span> <span class="n">options</span><span class="p">]</span> <span class="o">-</span><span class="n">i</span> <span class="n">infile</span><span class="p">]...</span> <span class="p">{[</span><span class="n">outfile</span> <span class="n">options</span><span class="p">]</span> <span class="n">outfile</span><span class="p">}...</span>
+
+<span class="n">Use</span> <span class="o">-</span><span class="n">h</span> <span class="n">to</span> <span class="n">get</span> <span class="n">full</span> <span class="n">help</span> <span class="n">or</span><span class="p">,</span> <span class="n">even</span> <span class="n">better</span><span class="p">,</span> <span class="n">run</span> <span class="err">&#39;</span><span class="n">man</span> <span class="n">ffmpeg</span><span class="err">&#39;</span>
+</pre></div>
+
+
+<p>首先转化你的第一个视频。我的输入是MP4格式，想要转化成Flash，显然会降低质量。完成这项任务的命令式：
+<code>ffmpeg -i test.mp4 test.flv</code>。
+然后这篇文章说明怎么配置xuggle。过去xuggle需要安装，但是现在只需要新建一个maven工程，并在其中添加：</p>
+<div class="highlight"><pre><span class="nt">&lt;repositories&gt;</span>
+  <span class="nt">&lt;repository&gt;</span>
+   <span class="nt">&lt;id&gt;</span>xuggle repo<span class="nt">&lt;/id&gt;</span>
+   <span class="nt">&lt;url&gt;</span>http://xuggle.googlecode.com/svn/trunk/repo/share/java/<span class="nt">&lt;/url&gt;</span>
+  <span class="nt">&lt;/repository&gt;</span>
+<span class="nt">&lt;/repositories&gt;</span>
+
+<span class="nt">&lt;dependencies&gt;</span>
+ <span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>xuggle<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>xuggle-xuggler<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>5.2<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;/dependencies&gt;</span>
+</pre></div>
+
+
+<p>下面写我们的第一个Xuggle程序：</p>
+<div class="highlight"><pre><span class="n">package</span> <span class="n">edu</span><span class="p">.</span><span class="n">bupt</span><span class="p">.</span><span class="n">videodatacenter</span><span class="p">.</span><span class="n">try_xuggle</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">com</span><span class="p">.</span><span class="n">xuggle</span><span class="p">.</span><span class="n">xuggler</span><span class="p">.</span><span class="n">ICodec</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">com</span><span class="p">.</span><span class="n">xuggle</span><span class="p">.</span><span class="n">xuggler</span><span class="p">.</span><span class="n">IContainer</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">com</span><span class="p">.</span><span class="n">xuggle</span><span class="p">.</span><span class="n">xuggler</span><span class="p">.</span><span class="n">IStream</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">com</span><span class="p">.</span><span class="n">xuggle</span><span class="p">.</span><span class="n">xuggler</span><span class="p">.</span><span class="n">IStreamCoder</span><span class="p">;</span>
+
+<span class="n">public</span> <span class="n">class</span> <span class="n">VideoInfo</span> <span class="p">{</span>
+
+    <span class="n">private</span> <span class="k">static</span> <span class="n">final</span> <span class="n">String</span> <span class="n">filename</span> <span class="o">=</span> <span class="s">&quot;/Users/zhaoxm/InBUPT/test_videos/te2.avi&quot;</span><span class="p">;</span>
+
+    <span class="n">public</span> <span class="k">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="c1">// first we create a Xuggler container object</span>
+        <span class="n">IContainer</span> <span class="n">container</span> <span class="o">=</span> <span class="n">IContainer</span><span class="p">.</span><span class="n">make</span><span class="p">();</span>
+
+        <span class="c1">// we attempt to open up the container</span>
+        <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">container</span><span class="p">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">IContainer</span><span class="p">.</span><span class="n">Type</span><span class="p">.</span><span class="n">READ</span><span class="p">,</span> <span class="n">null</span><span class="p">);</span>
+
+        <span class="c1">// check if the operation was successful</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">throw</span> <span class="n">new</span> <span class="n">RuntimeException</span><span class="p">(</span><span class="s">&quot;Failed to open media file&quot;</span><span class="p">);</span>
+
+        <span class="c1">// query how many streams the call to open found</span>
+        <span class="kt">int</span> <span class="n">numStreams</span> <span class="o">=</span> <span class="n">container</span><span class="p">.</span><span class="n">getNumStreams</span><span class="p">();</span>
+
+        <span class="c1">// query for the total duration</span>
+        <span class="kt">long</span> <span class="n">duration</span> <span class="o">=</span> <span class="n">container</span><span class="p">.</span><span class="n">getDuration</span><span class="p">();</span>
+
+        <span class="c1">// query for the file size</span>
+        <span class="kt">long</span> <span class="n">fileSize</span> <span class="o">=</span> <span class="n">container</span><span class="p">.</span><span class="n">getFileSize</span><span class="p">();</span>
+
+        <span class="c1">// query for the bit rate</span>
+        <span class="kt">long</span> <span class="n">bitRate</span> <span class="o">=</span> <span class="n">container</span><span class="p">.</span><span class="n">getBitRate</span><span class="p">();</span>
+
+        <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;Number of streams: &quot;</span> <span class="o">+</span> <span class="n">numStreams</span><span class="p">);</span>
+        <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;Duration (ms): &quot;</span> <span class="o">+</span> <span class="n">duration</span><span class="p">);</span>
+        <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;File Size (bytes): &quot;</span> <span class="o">+</span> <span class="n">fileSize</span><span class="p">);</span>
+        <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;Bit Rate: &quot;</span> <span class="o">+</span> <span class="n">bitRate</span><span class="p">);</span>
+
+        <span class="c1">// iterate through the streams to print their meta data</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">numStreams</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+
+            <span class="c1">// find the stream object</span>
+            <span class="n">IStream</span> <span class="n">stream</span> <span class="o">=</span> <span class="n">container</span><span class="p">.</span><span class="n">getStream</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+
+            <span class="c1">// get the pre-configured decoder that can decode this stream;</span>
+            <span class="n">IStreamCoder</span> <span class="n">coder</span> <span class="o">=</span> <span class="n">stream</span><span class="p">.</span><span class="n">getStreamCoder</span><span class="p">();</span>
+
+            <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;*** Start of Stream Info ***&quot;</span><span class="p">);</span>
+
+            <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;stream %d: &quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+            <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;type: %s; &quot;</span><span class="p">,</span> <span class="n">coder</span><span class="p">.</span><span class="n">getCodecType</span><span class="p">());</span>
+            <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;codec: %s; &quot;</span><span class="p">,</span> <span class="n">coder</span><span class="p">.</span><span class="n">getCodecID</span><span class="p">());</span>
+            <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;duration: %s; &quot;</span><span class="p">,</span> <span class="n">stream</span><span class="p">.</span><span class="n">getDuration</span><span class="p">());</span>
+            <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;start time: %s; &quot;</span><span class="p">,</span> <span class="n">container</span><span class="p">.</span><span class="n">getStartTime</span><span class="p">());</span>
+            <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;timebase: %d/%d; &quot;</span><span class="p">,</span>
+                 <span class="n">stream</span><span class="p">.</span><span class="n">getTimeBase</span><span class="p">().</span><span class="n">getNumerator</span><span class="p">(),</span>
+                 <span class="n">stream</span><span class="p">.</span><span class="n">getTimeBase</span><span class="p">().</span><span class="n">getDenominator</span><span class="p">());</span>
+            <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;coder tb: %d/%d; &quot;</span><span class="p">,</span>
+                 <span class="n">coder</span><span class="p">.</span><span class="n">getTimeBase</span><span class="p">().</span><span class="n">getNumerator</span><span class="p">(),</span>
+                 <span class="n">coder</span><span class="p">.</span><span class="n">getTimeBase</span><span class="p">().</span><span class="n">getDenominator</span><span class="p">());</span>
+            <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">();</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">coder</span><span class="p">.</span><span class="n">getCodecType</span><span class="p">()</span> <span class="o">==</span> <span class="n">ICodec</span><span class="p">.</span><span class="n">Type</span><span class="p">.</span><span class="n">CODEC_TYPE_AUDIO</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;sample rate: %d; &quot;</span><span class="p">,</span> <span class="n">coder</span><span class="p">.</span><span class="n">getSampleRate</span><span class="p">());</span>
+                <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;channels: %d; &quot;</span><span class="p">,</span> <span class="n">coder</span><span class="p">.</span><span class="n">getChannels</span><span class="p">());</span>
+                <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;format: %s&quot;</span><span class="p">,</span> <span class="n">coder</span><span class="p">.</span><span class="n">getSampleFormat</span><span class="p">());</span>
+            <span class="p">}</span> 
+            <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">coder</span><span class="p">.</span><span class="n">getCodecType</span><span class="p">()</span> <span class="o">==</span> <span class="n">ICodec</span><span class="p">.</span><span class="n">Type</span><span class="p">.</span><span class="n">CODEC_TYPE_VIDEO</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;width: %d; &quot;</span><span class="p">,</span> <span class="n">coder</span><span class="p">.</span><span class="n">getWidth</span><span class="p">());</span>
+                <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;height: %d; &quot;</span><span class="p">,</span> <span class="n">coder</span><span class="p">.</span><span class="n">getHeight</span><span class="p">());</span>
+                <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;format: %s; &quot;</span><span class="p">,</span> <span class="n">coder</span><span class="p">.</span><span class="n">getPixelType</span><span class="p">());</span>
+                <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;frame-rate: %5.2f; &quot;</span><span class="p">,</span> <span class="n">coder</span><span class="p">.</span><span class="n">getFrameRate</span><span class="p">().</span><span class="n">getDouble</span><span class="p">());</span>
+            <span class="p">}</span>
+
+            <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">();</span>
+            <span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;*** End of Stream Info ***&quot;</span><span class="p">);</span>         
+        <span class="p">}</span>   
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h5>输出是：</h5>
+<div class="highlight"><pre><span class="n">Number</span> <span class="n">of</span> <span class="n">streams</span><span class="o">:</span> <span class="mi">1</span>
+<span class="n">Duration</span> <span class="p">(</span><span class="n">ms</span><span class="p">)</span><span class="o">:</span> <span class="mi">92055565</span>
+<span class="n">File</span> <span class="n">Size</span> <span class="p">(</span><span class="n">bytes</span><span class="p">)</span><span class="o">:</span> <span class="mi">19711174</span>
+<span class="n">Bit</span> <span class="n">Rate</span><span class="o">:</span> <span class="mi">1712980</span>
+<span class="o">***</span> <span class="n">Start</span> <span class="n">of</span> <span class="n">Stream</span> <span class="n">Info</span> <span class="o">***</span>
+<span class="n">stream</span> <span class="mi">0</span><span class="o">:</span> <span class="n">type</span><span class="o">:</span> <span class="n">CODEC_TYPE_VIDEO</span><span class="p">;</span> <span class="n">codec</span><span class="o">:</span> <span class="n">CODEC_ID_H264</span><span class="p">;</span> <span class="n">duration</span><span class="o">:</span> <span class="mi">2759</span><span class="p">;</span> <span class="n">start</span>   <span class="n">time</span><span class="o">:</span> <span class="mi">0</span><span class="p">;</span> <span class="n">timebase</span><span class="o">:</span> <span class="mi">1001</span><span class="o">/</span><span class="mi">30001</span><span class="p">;</span> <span class="n">coder</span> <span class="n">tb</span><span class="o">:</span> <span class="mi">1</span><span class="o">/</span><span class="mi">48</span><span class="p">;</span> 
+<span class="nl">width:</span> <span class="mi">720</span><span class="p">;</span> <span class="n">height</span><span class="o">:</span> <span class="mi">480</span><span class="p">;</span> <span class="n">format</span><span class="o">:</span> <span class="n">YUV420P</span><span class="p">;</span> <span class="n">frame</span><span class="o">-</span><span class="n">rate</span><span class="o">:</span> <span class="mf">29.97</span><span class="p">;</span> 
+<span class="o">***</span> <span class="n">End</span> <span class="n">of</span> <span class="n">Stream</span> <span class="n">Info</span> <span class="o">***</span>
+</pre></div>
+
+
+<p>我们先创建一个IContainer实例，它包含了一个或者多个音频流或数据流，然后我们用它打开一个媒体文件。如果操作成功，我们能得到Container中有多少流Stream，还有持续时间，文件大小和比特率。</p>
+<p>以上这些信息都是关于Container的。但是，我们能够获得关于每个流的元数据。我们可以使用<code>getStream</code>方法来获取每个流的引用，然后<code>ISreamCoder</code>是一个解码器能够解码特定的流。对于这个获得的解码器，我们能够知道流的codec type（如CODEC_TYPE_VIDEO), codec ID(如CODEC_ID_H264)和其他一些信息。</p>
+<p>最终，我们能够区分音频和视频流。对于音频流，我们能够找到采样频率，频道数目，音频的采样格式。同时，对于视频流，我们能够得到维度信心（高度和宽度），像素格式和频率。</p>
+<h4>其中一些函数的作用：</h4>
+<h4>public long getDuration()</h4>
+<div class="highlight"><pre><span class="n">Return</span> <span class="n">the</span> <span class="n">duration</span><span class="p">,</span> <span class="n">in</span> <span class="n">getTimeBase</span><span class="p">()</span> <span class="n">units</span><span class="p">,</span> <span class="n">of</span> <span class="n">this</span> <span class="n">stream</span><span class="p">,</span> <span class="n">or</span> <span class="n">Global</span><span class="p">.</span><span class="n">NO_PTS</span> <span class="k">if</span> <span class="n">unknown</span><span class="p">.</span>
+<span class="nl">Returns:</span>
+<span class="n">The</span> <span class="n">duration</span> <span class="p">(</span><span class="n">in</span> <span class="n">getTimeBase</span> <span class="n">units</span><span class="p">)</span> <span class="n">of</span> <span class="n">this</span> <span class="n">stream</span><span class="p">,</span> <span class="k">if</span> <span class="n">known</span>
+<span class="err">以</span><span class="n">TimeBase</span><span class="err">为单位返回视频的持续时间。</span>
+<span class="err">以我们的示例视频为例：</span>
+<span class="err">真正的持续时间是</span><span class="mi">1</span><span class="o">:</span><span class="mi">32</span><span class="n">s</span> <span class="o">=</span> <span class="mi">92</span><span class="n">s</span>
+<span class="n">getDuration</span><span class="err">返回：</span><span class="mi">2759</span> <span class="n">getTimebase</span><span class="err">返回：</span><span class="mi">1001</span><span class="o">/</span><span class="mi">3001</span><span class="err">（</span><span class="n">s</span><span class="err">）</span>
+<span class="mi">2759</span><span class="o">*</span><span class="p">(</span><span class="mi">1001</span><span class="o">/</span><span class="mi">3001</span><span class="p">)</span> <span class="o">=</span> <span class="mi">92</span><span class="n">s</span>
+</pre></div>
+
+
+<h4>public IRational getFrameRate()</h4>
+<div class="highlight"><pre><span class="n">Get</span> <span class="n">the</span> <span class="p">(</span><span class="n">sometimes</span> <span class="n">estimated</span><span class="p">)</span> <span class="n">frame</span> <span class="n">rate</span> <span class="n">of</span> <span class="n">this</span> <span class="n">container</span><span class="p">.</span> <span class="n">an</span> <span class="n">approimation</span><span class="p">.</span> <span class="n">Better</span> <span class="n">to</span> <span class="n">use</span> <span class="n">getTimeBase</span><span class="p">().</span> <span class="n">For</span> <span class="n">contant</span> <span class="n">frame</span><span class="o">-</span><span class="n">rate</span> <span class="n">containers</span><span class="p">,</span> <span class="n">this</span> <span class="n">will</span> <span class="n">be</span> <span class="mi">1</span> <span class="p">(</span> <span class="n">getTimeBase</span><span class="p">()</span> <span class="p">)</span>
+<span class="err">一般都是近似值，最好用</span><span class="n">getTimeBase</span><span class="p">()</span>
+<span class="nl">Returns:</span>
+<span class="n">The</span> <span class="n">frame</span><span class="o">-</span><span class="n">rate</span> <span class="n">of</span> <span class="n">this</span> <span class="n">container</span><span class="p">.</span>
+</pre></div>
+
+
+<p>后面的教程会使用Xuggler和FFmpeg来做一些很Cool的事情，视频转换和视频修改：）</p></div>
+        <hr />
+    </div>
+		
+<div class="pagination">
+<ul>
+    <li class="prev disabled"><a href="#">&larr; Previous</a></li>
+
+    <li class="active"><a href="../tag/xuggler.html">1</a></li>
+
+    <li class="next disabled"><a href="#">&rarr; Next</a></li>
+
+</ul>
+</div>
+ 
+  
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="../archives.html">Archives</a>
+                <li><a href="../tags.html">Tags</a>
+                <li><a href="xmpy.github.io/" rel="alternate">Atom feed</a></li>
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="../category/code-snippets.html">Code Snippets</a></li>
+                <li><a href="../category/computer-vision.html">Computer Vision</a></li>
+                <li><a href="../category/javaxiang-guan-ji-zhu.html">Java相关技术</a></li>
+                <li><a href="../category/ji-chu-suan-fa.html">基础算法</a></li>
+                <li><a href="../category/qian-duan-ji-zhu-front-end.html">前端技术 Front-End</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="/archives.html">Archive</a></li>
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href="..">Xiaomeng's Notes</a> &copy; XiaomengZhao 2012</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="http://twitter.github.com/bootstrap/assets/js/bootstrap-collapse.js"></script>
+<a href="http://github.com/xmpy"><img style="position: absolute; top: 40px; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" /></a>
+ 
+</body>
+</html>

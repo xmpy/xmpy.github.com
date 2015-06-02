@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Xiaomeng's Notes</title>
+    <meta name="description" content="">
+    <meta name="author" content="XiaomengZhao">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="../../../../theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="../../../../theme/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../../theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="../../../../theme/local.css" rel="stylesheet">
+    <link href="../../../../theme/pygments.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href="../../../..">Xiaomeng's Notes</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>树的前中后的非递归遍历</h1>
+Sat 01 March 2014
+
+by <a class="url fn" href="../../../../author/xiaomengzhao.html">XiaomengZhao</a>
+ 
+
+
+        </div>
+	
+        <div><p><strong><em>树的前序遍历</em></strong></p>
+<p>没从栈中取出一个元素，就visit该元素，然后先压栈它的右元素，然后压栈它的左元素。因为栈是先进后出，左元素肯定要比右元素先出来。</p>
+<div class="highlight"><pre><span class="k">public</span> <span class="nf">class</span> <span class="nx">PreOrderTraversal</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="nf">List</span><span class="o">&lt;</span><span class="kt">Integer</span><span class="o">&gt;</span> <span class="nx">preorderTraversal</span><span class="p">(</span><span class="nx">TreeNode</span> <span class="nb">root</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// write your code here</span>
+        <span class="nx">ArrayList</span><span class="o">&lt;</span><span class="kt">Integer</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="nb">new</span> <span class="nx">ArrayList</span><span class="o">&lt;</span><span class="kt">Integer</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">root</span> <span class="o">==</span> <span class="kt">null</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kt">null</span><span class="p">;</span>
+
+        <span class="nb">Stack</span><span class="o">&lt;</span><span class="nx">TreeNode</span><span class="o">&gt;</span> <span class="n">s</span> <span class="o">=</span> <span class="nb">new</span> <span class="nb">Stack</span><span class="o">&lt;</span><span class="nx">TreeNode</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="nx">s.push</span><span class="p">(</span><span class="nb">root</span><span class="p">);</span>
+        <span class="k">while</span><span class="p">(</span><span class="nx">s.size</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
+            <span class="nx">TreeNode</span> <span class="n">p</span> <span class="o">=</span> <span class="nx">s.pop</span><span class="p">();</span>
+            <span class="nx">s.add</span><span class="p">(</span><span class="nx">p</span><span class="p">);</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">p.right</span> <span class="o">!=</span> <span class="kt">null</span><span class="p">){</span>
+                <span class="nx">s.push</span><span class="p">(</span><span class="nx">p.right</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">p.left</span> <span class="o">!=</span> <span class="kt">null</span><span class="p">){</span>
+                <span class="nx">s.push</span><span class="p">(</span><span class="nx">p.left</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="nb">result</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p><strong><em>树的中序遍历</em></strong></p>
+<p>比较麻烦，先要遍历左子树，然后自己，然后右子树。所以根节点放进栈里面后，读取他时还不能取出来，要直到它的左子树都遍历完才能取出来。先把所有的左节点都放进去，直到遍历到最左边的节点，弹出栈遍历，然后放入该左节点的右节点，如果右节点为空，则可以弹出下一个元素，否则继续遍历该元素的左节点的左节点的左节点。。</p>
+<div class="highlight"><pre><span class="k">public</span> <span class="nf">class</span> <span class="nx">InOrderTraversal</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="nf">ArrayList</span><span class="o">&lt;</span><span class="kt">Integer</span><span class="o">&gt;</span> <span class="nx">inorderTraversal</span><span class="p">(</span><span class="nx">TreeNode</span> <span class="nb">root</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// write your code here</span>
+        <span class="nx">ArrayList</span><span class="o">&lt;</span><span class="kt">Integer</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="nb">new</span> <span class="nx">ArrayList</span><span class="o">&lt;</span><span class="kt">Integer</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">root</span> <span class="o">==</span> <span class="kt">null</span><span class="p">){</span>
+            <span class="k">return</span> <span class="nb">result</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="nb">Stack</span><span class="o">&lt;</span><span class="nx">TreeNode</span><span class="o">&gt;</span> <span class="n">s</span> <span class="o">=</span> <span class="nb">new</span> <span class="nb">Stack</span><span class="o">&lt;</span><span class="nx">TreeNode</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="nx">TreeNode</span> <span class="n">curr</span> <span class="o">=</span> <span class="nb">root</span><span class="p">;</span>
+        <span class="nx">s.push</span><span class="p">(</span><span class="nb">root</span><span class="p">);</span>
+
+        <span class="k">while</span> <span class="p">(</span><span class="nx">s.size</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">){</span>
+
+            <span class="k">while</span><span class="p">(</span><span class="nx">curr</span> <span class="o">!=</span> <span class="kt">null</span><span class="p">){</span>
+                <span class="k">if</span><span class="p">(</span><span class="nx">curr.left</span> <span class="o">!=</span> <span class="kt">null</span> <span class="p">){</span>
+                    <span class="nx">s.push</span><span class="p">(</span><span class="nx">curr.left</span><span class="p">);</span>
+                <span class="p">}</span>
+                <span class="n">curr</span> <span class="o">=</span> <span class="nx">curr.left</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="n">curr</span> <span class="o">=</span> <span class="nx">s.pop</span><span class="p">();</span>
+            <span class="nx">result.add</span><span class="p">(</span><span class="nx">curr.val</span><span class="p">);</span>
+            <span class="n">curr</span> <span class="o">=</span> <span class="nx">curr.right</span><span class="p">;</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">curr</span> <span class="o">!=</span> <span class="kt">null</span><span class="p">){</span>
+                <span class="nx">s.push</span><span class="p">(</span><span class="nx">curr</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="nb">result</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p><strong><em>树的后序遍历</em></strong></p>
+<h5>思路一：</h5>
+<p>后序遍历，要保证节点的左孩子和右孩子都被访问以后，该节点才能访问。我们使用<strong><em>pre</em></strong>来存储之前访问过的节点，如果之前访问的节点是当前栈顶元素的左节点或者右节点，说明栈顶节点的左孩子和右孩子都完事儿了，可以pop出栈顶节点了。若非上述两种情况，则将P的右孩子和左孩子依次入栈，这样就保证了每次取栈顶元素的时候，左孩子在右孩子前面被访问，左孩子和右孩子都在根结点前面被访问。   </p>
+<div class="highlight"><pre><span class="k">public</span> <span class="nf">class</span> <span class="nx">Solution</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="nf">List</span><span class="o">&lt;</span><span class="kt">Integer</span><span class="o">&gt;</span> <span class="nx">postorderTraversal</span><span class="p">(</span><span class="nx">TreeNode</span> <span class="nb">root</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nb">List</span><span class="o">&lt;</span><span class="kt">Integer</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="nb">new</span> <span class="nx">ArrayList</span><span class="o">&lt;</span><span class="kt">Integer</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">root</span> <span class="o">==</span> <span class="kt">null</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nb">result</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="nb">Stack</span><span class="o">&lt;</span><span class="nx">TreeNode</span><span class="o">&gt;</span> <span class="n">s</span> <span class="o">=</span> <span class="nb">new</span> <span class="nb">Stack</span><span class="o">&lt;</span><span class="nx">TreeNode</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="nx">s.push</span><span class="p">(</span><span class="nb">root</span><span class="p">);</span>
+        <span class="nx">TreeNode</span> <span class="n">pre</span> <span class="o">=</span> <span class="kt">null</span><span class="p">;</span>
+
+        <span class="k">while</span> <span class="p">(</span><span class="nx">s.size</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">TreeNode</span> <span class="n">curr</span> <span class="o">=</span> <span class="nx">s.peek</span><span class="p">();</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="nx">pre</span> <span class="o">!=</span> <span class="kt">null</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">pre</span> <span class="o">==</span> <span class="nx">curr.left</span> <span class="o">||</span> <span class="nx">pre</span> <span class="o">==</span> <span class="nx">curr.right</span><span class="p">)){</span>
+                <span class="nx">TreeNode</span> <span class="n">temp</span> <span class="o">=</span> <span class="nx">s.pop</span><span class="p">();</span>
+                <span class="nx">result.add</span><span class="p">(</span><span class="nx">temp.val</span><span class="p">);</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nx">curr.left</span> <span class="o">==</span> <span class="kt">null</span> <span class="o">&amp;&amp;</span> <span class="nx">curr.right</span> <span class="o">==</span> <span class="kt">null</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="nx">TreeNode</span> <span class="n">temp</span> <span class="o">=</span> <span class="nx">s.pop</span><span class="p">();</span>
+                    <span class="nx">result.add</span><span class="p">(</span><span class="nx">temp.val</span><span class="p">);</span>
+                <span class="p">}</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nx">curr.right</span> <span class="o">!=</span> <span class="kt">null</span><span class="p">){</span>
+                    <span class="nx">s.push</span><span class="p">(</span><span class="nx">curr.right</span><span class="p">);</span>
+                <span class="p">}</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nx">curr.left</span> <span class="o">!=</span> <span class="kt">null</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="nx">s.push</span><span class="p">(</span><span class="nx">curr.left</span><span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+
+            <span class="n">pre</span> <span class="o">=</span> <span class="nx">curr</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="nb">result</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h5>思路二：</h5>
+<p>非常巧妙的方法。后序遍历是左右中，也就是说如果栈顶元素的左右子树没有读取完，他就不能弹栈。这里非常巧妙的维护了<strong><em>*一个pre元素</em></strong>*，记录了上次遍历的节点，如果是从上往下，那么还要继续将自己的子节点压栈，如果是从下往上，如果从左子树上来，则push右子树，否则则弹出自己并遍历。</p>
+<div class="highlight"><pre><span class="k">public</span> <span class="nf">class</span> <span class="nx">PostTravesal</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="nf">List</span><span class="o">&lt;</span><span class="kt">Integer</span><span class="o">&gt;</span> <span class="nx">postorderTraversal</span><span class="p">(</span><span class="nx">TreeNode</span> <span class="nb">root</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="nx">ArrayList</span><span class="o">&lt;</span><span class="kt">Integer</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="nb">new</span> <span class="nx">ArrayList</span><span class="o">&lt;</span><span class="kt">Integer</span><span class="o">&gt;</span><span class="p">();</span>
+
+        <span class="nx">TreeNode</span> <span class="n">pre</span> <span class="o">=</span> <span class="kt">null</span><span class="p">;</span>
+        <span class="nb">Stack</span><span class="o">&lt;</span><span class="nx">TreeNode</span><span class="o">&gt;</span> <span class="n">s</span> <span class="o">=</span> <span class="nb">new</span> <span class="nb">Stack</span><span class="o">&lt;</span><span class="nx">TreeNode</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="nx">s.push</span><span class="p">(</span><span class="nb">root</span><span class="p">);</span>
+
+
+        <span class="k">while</span><span class="p">(</span><span class="nx">s.size</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
+            <span class="nx">TreeNode</span> <span class="n">curr</span> <span class="o">=</span> <span class="nx">s.peek</span><span class="p">();</span>
+            <span class="c1">//从上往下</span>
+            <span class="k">if</span><span class="p">(</span> <span class="nx">pre</span> <span class="o">==</span> <span class="kt">null</span> <span class="o">||</span> <span class="nx">curr</span> <span class="o">==</span> <span class="nx">pre.left</span> <span class="o">||</span> <span class="nx">curr</span> <span class="o">==</span> <span class="nx">pre.right</span> <span class="p">){</span>
+                <span class="k">if</span><span class="p">(</span><span class="nx">curr.left</span> <span class="o">!=</span> <span class="kt">null</span><span class="p">){</span>
+                    <span class="nx">s.push</span><span class="p">(</span><span class="nx">curr.left</span><span class="p">);</span>
+                <span class="p">}</span><span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">curr.right</span> <span class="o">!=</span> <span class="kt">null</span><span class="p">){</span>
+                    <span class="nx">s.push</span><span class="p">(</span><span class="nx">curr.right</span><span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">curr.left</span> <span class="o">==</span> <span class="nx">pre</span><span class="p">)</span> <span class="p">{</span> <span class="c1">//从下往上</span>
+                <span class="k">if</span><span class="p">(</span><span class="nx">curr.right</span> <span class="o">!=</span> <span class="kt">null</span><span class="p">){</span>
+                    <span class="nx">s.push</span><span class="p">(</span><span class="nx">curr.right</span><span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="nx">TreeNode</span> <span class="n">temp</span> <span class="o">=</span> <span class="nx">s.pop</span><span class="p">();</span>
+                <span class="nx">result.add</span><span class="p">(</span><span class="nx">temp.val</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="n">pre</span> <span class="o">=</span> <span class="nx">curr</span><span class="p">;</span> <span class="c1">//记录前序节点</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="nb">result</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div></div>
+	
+        <hr>
+    	   
+        <h2>Comments</h2>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'xmpy'; 
+    var disqus_title = '树的前中后的非递归遍历';
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="../../../../archives.html">Archives</a>
+                <li><a href="../../../../tags.html">Tags</a>
+                <li><a href="xmpy.github.io/" rel="alternate">Atom feed</a></li>
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="../../../../category/code-snippets.html">Code Snippets</a></li>
+                <li><a href="../../../../category/computer-vision.html">Computer Vision</a></li>
+                <li><a href="../../../../category/javaxiang-guan-ji-zhu.html">Java相关技术</a></li>
+                <li><a href="../../../../category/ji-chu-suan-fa.html">基础算法</a></li>
+                <li><a href="../../../../category/qian-duan-ji-zhu-front-end.html">前端技术 Front-End</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="/archives.html">Archive</a></li>
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href="../../../..">Xiaomeng's Notes</a> &copy; XiaomengZhao 2012</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="http://twitter.github.com/bootstrap/assets/js/bootstrap-collapse.js"></script>
+<a href="http://github.com/xmpy"><img style="position: absolute; top: 40px; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" /></a>
+ 
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Xiaomeng's Notes</title>
+    <meta name="description" content="">
+    <meta name="author" content="XiaomengZhao">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Xiaomeng's Notes</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+        
+
+        
+
+
+    <div class='article'>
+        <div class="content-title">
+            <a href="./pages/2015/06/02/mybatis_logging.html"><h1>How can Mybatis know its logger?</h1></a>
+Tue 02 June 2015
+
+by <a class="url fn" href="./author/xiaomengzhao.html">XiaomengZhao</a>
+ 
+
+
+ 
+        </div>
+        
+        <div><p>I always have a question that how Mybatis know that I use Log4j as logger rather than other loggers. Here is the answer. Mybatis just try every logger :)</p>
+<div class="highlight"><pre><span class="c">/**</span>
+<span class="c"> *    Copyright 2009-2015 the original author or authors.</span>
+<span class="c"> *</span>
+<span class="c"> *    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c"> *    you may not use this file except in compliance with the License.</span>
+<span class="c"> *    You may obtain a copy of the License at</span>
+<span class="c"> *</span>
+<span class="c"> *       http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c"> *</span>
+<span class="c"> *    Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"> *    distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"> *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"> *    See the License for the specific language governing permissions and</span>
+<span class="c"> *    limitations under the License.</span>
+<span class="c"> */</span>
+<span class="nt">package</span> <span class="nt">org</span><span class="nc">.apache.ibatis.logging</span><span class="o">;</span>
+
+<span class="nt">import</span> <span class="nt">java</span><span class="nc">.lang.reflect.Constructor</span><span class="o">;</span>
+
+<span class="c">/**</span>
+<span class="c"> * @author Clinton Begin</span>
+<span class="c"> * @author Eduardo Macarron</span>
+<span class="c"> */</span>
+<span class="nt">public</span> <span class="nt">final</span> <span class="nt">class</span> <span class="nt">LogFactory</span> <span class="p">{</span>
+
+  <span class="c">/**</span>
+<span class="c">   * Marker to be used by logging implementations that support markers</span>
+<span class="c">   */</span>
+  <span class="n">public</span> <span class="k">static</span> <span class="n">final</span> <span class="n">String</span> <span class="n">MARKER</span> <span class="o">=</span> <span class="s2">&quot;MYBATIS&quot;</span><span class="p">;</span>
+
+  <span class="n">private</span> <span class="k">static</span> <span class="n">Constructor</span><span class="o">&lt;?</span> <span class="n">extends</span> <span class="n">Log</span><span class="o">&gt;</span> <span class="n">logConstructor</span><span class="p">;</span>
+
+  <span class="k">static</span> <span class="err">{</span>
+    <span class="n">tryImplementation</span><span class="p">(</span><span class="n">new</span> <span class="n">Runnable</span><span class="p">()</span> <span class="err">{</span>
+      <span class="o">@</span><span class="n">Override</span>
+      <span class="n">public</span> <span class="n">void</span> <span class="n">run</span><span class="p">()</span> <span class="err">{</span>
+        <span class="n">useSlf4jLogging</span><span class="p">();</span>
+      <span class="p">}</span>
+    <span class="err">}</span><span class="o">);</span>
+    <span class="nt">tryImplementation</span><span class="o">(</span><span class="nt">new</span> <span class="nt">Runnable</span><span class="o">()</span> <span class="p">{</span>
+      <span class="o">@</span><span class="n">Override</span>
+      <span class="n">public</span> <span class="n">void</span> <span class="n">run</span><span class="p">()</span> <span class="err">{</span>
+        <span class="n">useCommonsLogging</span><span class="p">();</span>
+      <span class="p">}</span>
+    <span class="err">}</span><span class="o">);</span>
+    <span class="nt">tryImplementation</span><span class="o">(</span><span class="nt">new</span> <span class="nt">Runnable</span><span class="o">()</span> <span class="p">{</span>
+      <span class="o">@</span><span class="n">Override</span>
+      <span class="n">public</span> <span class="n">void</span> <span class="n">run</span><span class="p">()</span> <span class="err">{</span>
+        <span class="n">useLog4J2Logging</span><span class="p">();</span>
+      <span class="p">}</span>
+    <span class="err">}</span><span class="o">);</span>
+    <span class="nt">tryImplementation</span><span class="o">(</span><span class="nt">new</span> <span class="nt">Runnable</span><span class="o">()</span> <span class="p">{</span>
+      <span class="o">@</span><span class="n">Override</span>
+      <span class="n">public</span> <span class="n">void</span> <span class="n">run</span><span class="p">()</span> <span class="err">{</span>
+        <span class="n">useLog4JLogging</span><span class="p">();</span>
+      <span class="p">}</span>
+    <span class="err">}</span><span class="o">);</span>
+    <span class="nt">tryImplementation</span><span class="o">(</span><span class="nt">new</span> <span class="nt">Runnable</span><span class="o">()</span> <span class="p">{</span>
+      <span class="o">@</span><span class="n">Override</span>
+      <span class="n">public</span> <span class="n">void</span> <span class="n">run</span><span class="p">()</span> <span class="err">{</span>
+        <span class="n">useJdkLogging</span><span class="p">();</span>
+      <span class="p">}</span>
+    <span class="err">}</span><span class="o">);</span>
+    <span class="nt">tryImplementation</span><span class="o">(</span><span class="nt">new</span> <span class="nt">Runnable</span><span class="o">()</span> <span class="p">{</span>
+      <span class="o">@</span><span class="n">Override</span>
+      <span class="n">public</span> <span class="n">void</span> <span class="n">run</span><span class="p">()</span> <span class="err">{</span>
+        <span class="n">useNoLogging</span><span class="p">();</span>
+      <span class="p">}</span>
+    <span class="err">}</span><span class="o">);</span>
+  <span class="err">}</span>
+
+  <span class="nt">private</span> <span class="nt">LogFactory</span><span class="o">()</span> <span class="p">{</span>
+    <span class="o">//</span> <span class="n">disable</span> <span class="n">construction</span>
+  <span class="p">}</span>
+
+  <span class="nt">public</span> <span class="nt">static</span> <span class="nt">Log</span> <span class="nt">getLog</span><span class="o">(</span><span class="nt">Class</span><span class="o">&lt;?&gt;</span> <span class="nt">aClass</span><span class="o">)</span> <span class="p">{</span>
+    <span class="n">return</span> <span class="n">getLog</span><span class="p">(</span><span class="n">aClass</span><span class="o">.</span><span class="n">getName</span><span class="p">());</span>
+  <span class="p">}</span>
+
+  <span class="nt">public</span> <span class="nt">static</span> <span class="nt">Log</span> <span class="nt">getLog</span><span class="o">(</span><span class="nt">String</span> <span class="nt">logger</span><span class="o">)</span> <span class="p">{</span>
+    <span class="n">try</span> <span class="err">{</span>
+      <span class="n">return</span> <span class="n">logConstructor</span><span class="o">.</span><span class="n">newInstance</span><span class="p">(</span><span class="n">new</span> <span class="n">Object</span><span class="cp">[]</span> <span class="err">{</span> <span class="n">logger</span> <span class="p">}</span><span class="o">);</span>
+    <span class="err">}</span> <span class="nt">catch</span> <span class="o">(</span><span class="nt">Throwable</span> <span class="nt">t</span><span class="o">)</span> <span class="p">{</span>
+      <span class="n">throw</span> <span class="n">new</span> <span class="n">LogException</span><span class="p">(</span><span class="s2">&quot;Error creating logger for logger &quot;</span> <span class="o">+</span> <span class="n">logger</span> <span class="o">+</span> <span class="s2">&quot;.  Cause: &quot;</span> <span class="o">+</span> <span class="n">t</span><span class="o">,</span> <span class="n">t</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="err">}</span>
+
+  <span class="nt">public</span> <span class="nt">static</span> <span class="nt">synchronized</span> <span class="nt">void</span> <span class="nt">useCustomLogging</span><span class="o">(</span><span class="nt">Class</span><span class="o">&lt;?</span> <span class="nt">extends</span> <span class="nt">Log</span><span class="o">&gt;</span> <span class="nt">clazz</span><span class="o">)</span> <span class="p">{</span>
+    <span class="n">setImplementation</span><span class="p">(</span><span class="n">clazz</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="nt">public</span> <span class="nt">static</span> <span class="nt">synchronized</span> <span class="nt">void</span> <span class="nt">useSlf4jLogging</span><span class="o">()</span> <span class="p">{</span>
+    <span class="n">setImplementation</span><span class="p">(</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">ibatis</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">slf4j</span><span class="o">.</span><span class="n">Slf4jImpl</span><span class="o">.</span><span class="n">class</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="nt">public</span> <span class="nt">static</span> <span class="nt">synchronized</span> <span class="nt">void</span> <span class="nt">useCommonsLogging</span><span class="o">()</span> <span class="p">{</span>
+    <span class="n">setImplementation</span><span class="p">(</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">ibatis</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">commons</span><span class="o">.</span><span class="n">JakartaCommonsLoggingImpl</span><span class="o">.</span><span class="n">class</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="nt">public</span> <span class="nt">static</span> <span class="nt">synchronized</span> <span class="nt">void</span> <span class="nt">useLog4JLogging</span><span class="o">()</span> <span class="p">{</span>
+    <span class="n">setImplementation</span><span class="p">(</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">ibatis</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">log4j</span><span class="o">.</span><span class="n">Log4jImpl</span><span class="o">.</span><span class="n">class</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="nt">public</span> <span class="nt">static</span> <span class="nt">synchronized</span> <span class="nt">void</span> <span class="nt">useLog4J2Logging</span><span class="o">()</span> <span class="p">{</span>
+    <span class="n">setImplementation</span><span class="p">(</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">ibatis</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">log4j2</span><span class="o">.</span><span class="n">Log4j2Impl</span><span class="o">.</span><span class="n">class</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="nt">public</span> <span class="nt">static</span> <span class="nt">synchronized</span> <span class="nt">void</span> <span class="nt">useJdkLogging</span><span class="o">()</span> <span class="p">{</span>
+    <span class="n">setImplementation</span><span class="p">(</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">ibatis</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">jdk14</span><span class="o">.</span><span class="n">Jdk14LoggingImpl</span><span class="o">.</span><span class="n">class</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="nt">public</span> <span class="nt">static</span> <span class="nt">synchronized</span> <span class="nt">void</span> <span class="nt">useStdOutLogging</span><span class="o">()</span> <span class="p">{</span>
+    <span class="n">setImplementation</span><span class="p">(</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">ibatis</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">StdOutImpl</span><span class="o">.</span><span class="n">class</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="nt">public</span> <span class="nt">static</span> <span class="nt">synchronized</span> <span class="nt">void</span> <span class="nt">useNoLogging</span><span class="o">()</span> <span class="p">{</span>
+    <span class="n">setImplementation</span><span class="p">(</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">ibatis</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">nologging</span><span class="o">.</span><span class="n">NoLoggingImpl</span><span class="o">.</span><span class="n">class</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="nt">private</span> <span class="nt">static</span> <span class="nt">void</span> <span class="nt">tryImplementation</span><span class="o">(</span><span class="nt">Runnable</span> <span class="nt">runnable</span><span class="o">)</span> <span class="p">{</span>
+    <span class="n">if</span> <span class="p">(</span><span class="n">logConstructor</span> <span class="o">==</span> <span class="n">null</span><span class="p">)</span> <span class="err">{</span>
+      <span class="n">try</span> <span class="err">{</span>
+        <span class="n">runnable</span><span class="o">.</span><span class="n">run</span><span class="p">();</span>
+      <span class="p">}</span> <span class="nt">catch</span> <span class="o">(</span><span class="nt">Throwable</span> <span class="nt">t</span><span class="o">)</span> <span class="p">{</span>
+        <span class="o">//</span> <span class="n">ignore</span>
+      <span class="p">}</span>
+    <span class="err">}</span>
+  <span class="err">}</span>
+
+  <span class="nt">private</span> <span class="nt">static</span> <span class="nt">void</span> <span class="nt">setImplementation</span><span class="o">(</span><span class="nt">Class</span><span class="o">&lt;?</span> <span class="nt">extends</span> <span class="nt">Log</span><span class="o">&gt;</span> <span class="nt">implClass</span><span class="o">)</span> <span class="p">{</span>
+    <span class="n">try</span> <span class="err">{</span>
+      <span class="n">Constructor</span><span class="o">&lt;?</span> <span class="n">extends</span> <span class="n">Log</span><span class="o">&gt;</span> <span class="n">candidate</span> <span class="o">=</span> <span class="n">implClass</span><span class="o">.</span><span class="n">getConstructor</span><span class="p">(</span><span class="n">new</span> <span class="n">Class</span><span class="cp">[]</span> <span class="err">{</span> <span class="n">String</span><span class="o">.</span><span class="n">class</span> <span class="p">}</span><span class="o">);</span>
+      <span class="nt">Log</span> <span class="nt">log</span> <span class="o">=</span> <span class="nt">candidate</span><span class="nc">.newInstance</span><span class="o">(</span><span class="nt">new</span> <span class="nt">Object</span><span class="cp">[]</span> <span class="p">{</span> <span class="n">LogFactory</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">getName</span><span class="p">()</span> <span class="p">}</span><span class="o">);</span>
+      <span class="nt">if</span> <span class="o">(</span><span class="nt">log</span><span class="nc">.isDebugEnabled</span><span class="o">())</span> <span class="p">{</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Logging initialized using &#39;&quot;</span> <span class="o">+</span> <span class="n">implClass</span> <span class="o">+</span> <span class="s2">&quot;&#39; adapter.&quot;</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="nt">logConstructor</span> <span class="o">=</span> <span class="nt">candidate</span><span class="o">;</span>
+    <span class="err">}</span> <span class="nt">catch</span> <span class="o">(</span><span class="nt">Throwable</span> <span class="nt">t</span><span class="o">)</span> <span class="p">{</span>
+      <span class="n">throw</span> <span class="n">new</span> <span class="n">LogException</span><span class="p">(</span><span class="s2">&quot;Error setting Log implementation.  Cause: &quot;</span> <span class="o">+</span> <span class="n">t</span><span class="o">,</span> <span class="n">t</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="err">}</span>
+
+<span class="err">}</span>
+</pre></div></div>
+        <hr />
+    </div>
+		
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="./pages/2014/03/01/binary_search_tree_iterator.html"><h2>实现一个二叉排序树的迭代器</h2></a>
+        <div class= "well small"> Sat 01 March 2014
+
+by <a class="url fn" href="./author/xiaomengzhao.html">XiaomengZhao</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>二叉搜索树的中序遍历是有序的。在该篇文章中，我们实现了一个二叉搜索树的迭代器，每次调用该迭代器的next方法可以返回有序的数字。迭代器的好处是，可以对调用者屏蔽底层数据结构的复杂性，调用者不用考虑底层数据存储是用数组实现，还是链表实现，或者是二叉搜索树实现。</p>
+<p>Java迭代器需要实现以下接口：</p>
+<div class="highlight"><pre><span class="n">public</span> <span class="n">interface</span> <span class="n">BinaryTreeIterator</span> <span class="p">{</span>
+    <span class="c1">// Are there other nodes to see in this traversal? </span>
+    <span class="n">boolean</span> <span class="n">hasNext</span><span class="p">();</span>
+    <span class="c1">// Return the value of the key in the next node in the </span>
+    <span class="c1">// traversal, and advance the position of the iterator.</span>
+    <span class="n">TreeNode</span> <span class="nf">next</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>下面就是我们实现了这以借口。对树的中序遍历进行了一些修改。</p>
+<div class="highlight"><pre><span class="k">public</span> <span class="nf">class ...</span></pre></div> <a class="btn btn-info xsmall" href="./pages/2014/03/01/binary_search_tree_iterator.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="./pages/2014/03/01/binary_tree_traversal.html"><h2>树的前中后的非递归遍历</h2></a>
+        <div class= "well small"> Sat 01 March 2014
+
+by <a class="url fn" href="./author/xiaomengzhao.html">XiaomengZhao</a>
+ 
+
+
+ </div>
+        <div class="summary"><p><strong><em>树的前序遍历</em></strong></p>
+<p>没从栈中取出一个元素，就visit该元素，然后先压栈它的右元素，然后压栈它的左元素。因为栈是先进后出，左元素肯定要比右元素先出来。</p>
+<div class="highlight"><pre><span class="k">public</span> <span class="nf">class</span> <span class="nx">PreOrderTraversal</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="nf">List</span><span class="o">&lt;</span><span class="kt">Integer</span><span class="o">&gt;</span> <span class="nx">preorderTraversal</span><span class="p">(</span><span class="nx">TreeNode</span> <span class="nb">root</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// write your code here</span>
+        <span class="nx">ArrayList</span><span class="o">&lt;</span><span class="kt">Integer</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="nb">new</span> <span class="nx">ArrayList</span><span class="o">&lt;</span><span class="kt">Integer</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">root</span> <span class="o">==</span> <span class="kt">null</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kt">null</span><span class="p">;</span>
+
+        <span class="nb">Stack</span><span class="o">&lt;</span><span class="nx">TreeNode</span><span class="o">&gt;</span> <span class="n">s</span> <span class="o">=</span> <span class="nb">new</span> <span class="nb">Stack</span><span class="o">&lt;</span><span class="nx">TreeNode</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="nx">s.push</span><span class="p">(</span><span class="nb">root</span><span class="p">);</span>
+        <span class="k">while</span><span class="p">(</span><span class="nx">s.size</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
+            <span class="nx">TreeNode</span> <span class="n">p</span> <span class="o">=</span> <span class="nx">s.pop</span><span class="p">();</span>
+            <span class="nx">s.add ...</span></pre></div> <a class="btn btn-info xsmall" href="./pages/2014/03/01/binary_tree_traversal.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="./pages/2014/03/01/word_break_improved.html"><h2>实现一个二叉排序树的迭代器</h2></a>
+        <div class= "well small"> Sat 01 March 2014
+
+by <a class="url fn" href="./author/xiaomengzhao.html">XiaomengZhao</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>二叉搜索树的中序遍历是有序的。在该篇文章中，我们实现了一个二叉搜索树的迭代器，每次调用该迭代器的next方法可以返回有序的数字。迭代器的好处是，可以对调用者屏蔽底层数据结构的复杂性，调用者不用考虑底层数据存储是用数组实现，还是链表实现，或者是二叉搜索树实现。</p>
+<p>Java迭代器需要实现以下接口：</p>
+<div class="highlight"><pre><span class="n">public</span> <span class="n">interface</span> <span class="n">BinaryTreeIterator</span> <span class="p">{</span>
+    <span class="c1">// Are there other nodes to see in this traversal? </span>
+    <span class="n">boolean</span> <span class="n">hasNext</span><span class="p">();</span>
+    <span class="c1">// Return the value of the key in the next node in the </span>
+    <span class="c1">// traversal, and advance the position of the iterator.</span>
+    <span class="n">TreeNode</span> <span class="nf">next</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>下面就是我们实现了这以借口。对树的中序遍历进行了一些修改。</p>
+<div class="highlight"><pre><span class="k">public</span> <span class="nf">class ...</span></pre></div> <a class="btn btn-info xsmall" href="./pages/2014/03/01/word_break_improved.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="./pages/2014/02/01/js_onload_event.html"><h2>JavaScript中的onload事件</h2></a>
+        <div class= "well small"> Sat 01 February 2014
+
+by <a class="url fn" href="./author/xiaomengzhao.html">XiaomengZhao</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>首先，onload属于<a href="http://www.w3schools.com/jsref/dom_obj_event.asp">HTML DOM Events</a>，而HTML DOM Events的定义如下：</p>
+<blockquote>
+<p>Event对象代表事件的状态，比如事件在其中发生的元素、键盘按键的状态、鼠标的位置、鼠标按钮的状态。
+HTML DOM事件通常与处理函数绑定在一起，允许Javascript为HTML文档中的元素注册不同的事件处理函数，处理函数不会在事件发生之前被执行。</p>
+</blockquote>
+<p>而onload事件是在一张页面或一副图像完成后加载。可以用在<code>&lt;body&gt;</code>, <code>&lt;frame&gt;</code>, <code>&lt;frameset&gt;</code>,<code>&lt;iframe&gt;</code>, <code>&lt;img&gt;</code>, <code>&lt;input type="image"&gt;</code>, <code>&lt;link&gt;</code>, <code>&lt;script&gt;</code>, <code>&lt;style&gt;</code>这些标签中。但是绝大多数情况下，onload会用在<code>&lt;body&gt;</code>元素中，<strong>一旦一个网页全部加载好（包括图片, 脚本文件, CSS样式表，etc）</strong>，就执行事件处理函数，所以一般onload处理函数都是最后执行的。</p>
+<p>你可以这样写：</p>
+<div class="highlight"><pre><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+<span class="nt">&lt;script&gt;</span>
+    function myFunction ...</pre></div> <a class="btn btn-info xsmall" href="./pages/2014/02/01/js_onload_event.html">read more</a></div>
+    </div>	
+				
+<div class="pagination">
+<ul>
+    <li class="prev disabled"><a href="#">&larr; Previous</a></li>
+
+    <li class="active"><a href="./index.html">1</a></li>
+    <li class=""><a href="./index2.html">2</a></li>
+
+    <li class="next"><a href="./index2.html">Next &rarr;</a></li>
+
+</ul>
+</div>
+ 
+  
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+                <li><a href="xmpy.github.io/" rel="alternate">Atom feed</a></li>
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/code-snippets.html">Code Snippets</a></li>
+                <li><a href="./category/computer-vision.html">Computer Vision</a></li>
+                <li><a href="./category/javaxiang-guan-ji-zhu.html">Java相关技术</a></li>
+                <li><a href="./category/ji-chu-suan-fa.html">基础算法</a></li>
+                <li><a href="./category/qian-duan-ji-zhu-front-end.html">前端技术 Front-End</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="/archives.html">Archive</a></li>
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Xiaomeng's Notes</a> &copy; XiaomengZhao 2012</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="http://twitter.github.com/bootstrap/assets/js/bootstrap-collapse.js"></script>
+<a href="http://github.com/xmpy"><img style="position: absolute; top: 40px; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" /></a>
+ 
+</body>
+</html>

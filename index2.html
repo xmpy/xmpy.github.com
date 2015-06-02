@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Xiaomeng's Notes</title>
+    <meta name="description" content="">
+    <meta name="author" content="XiaomengZhao">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Xiaomeng's Notes</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+        
+
+        
+
+ 
+
+    <div class='article'>
+        <a href="./pages/2013/12/22/java_integer_valueof.html"><h2>Java中的Integer.valueoOf(String)的诡异行为</h2></a>
+        <div class= "well small"> Sun 22 December 2013
+
+by <a class="url fn" href="./author/xiaomengzhao.html">XiaomengZhao</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>今天看到stackoverflow中有个一非常有意思的问题，特把它翻译出来收藏。StackOverflow原帖地址为<a href="http://stackoverflow.com/questions/20877086/confusion-in-method-integer-valueofstring/">http://stackoverflow.com/questions/20877086/confusion-in-method-integer-valueofstring/</a> .</p>
+<p>问题是这样的：</p>
+<div class="highlight"><pre><span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">Integer</span><span class="p">.</span><span class="n">valueOf</span><span class="p">(</span><span class="s">&quot;127&quot;</span><span class="p">)</span><span class="o">==</span><span class="n">Integer</span><span class="p">.</span><span class="n">valueOf</span><span class="p">(</span><span class="s">&quot;127&quot;</span><span class="p">));</span>
+<span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">Integer</span><span class="p">.</span><span class="n">valueOf</span><span class="p">(</span><span class="s">&quot;128&quot;</span><span class="p">)</span><span class="o">==</span><span class="n">Integer</span><span class="p">.</span><span class="n">valueOf</span><span class="p">(</span><span class="s">&quot;128&quot;</span><span class="p">));</span>
+<span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">Integer</span><span class="p">.</span><span class="n">parseInt</span><span class="p">(</span><span class="s">&quot;128&quot;</span><span class="p">)</span><span class="o">==</span><span class="n">Integer</span><span class="p">.</span><span class="n">valueOf</span><span class="p">(</span><span class="s">&quot;128&quot;</span><span class="p">));</span>
+</pre></div>
+
+
+<p>输出的却是：</p>
+<div class="highlight"><pre><span class="nb">true</span>
+<span class="nb">false</span>
+<span class="nb">true</span>
+</pre></div>
+
+
+<p>问题解决：</p>
+<p>Interger类的<code>valueOf</code>返回的是<code>Integer</code>对象。默认情况下，如果参数在-128到127之间，则返回缓存中的对象 ...</p> <a class="btn btn-info xsmall" href="./pages/2013/12/22/java_integer_valueof.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="./pages/2013/12/16/javacv_detect_people.html"><h2>使用JavaCV进行人员检测</h2></a>
+        <div class= "well small"> Mon 16 December 2013
+
+by <a class="url fn" href="./author/xiaomengzhao.html">XiaomengZhao</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>JavaCV是OpenCV的Wrapper，通过JNI调用OpenCV，按理说JavaCV和OpenCV应该是等价的，但是JavaCV并不像最近比较新的使用python调用OpenCV那么完善，没有例子，没有API文档，在使用中间会遇到各种问题，特以此文来记录自己遇到的问题和如何解决。</p>
+<p>1. 如何新建一个JavaCV的Maven工程</p>
+<p>在pom.xml中加入：</p>
+<p>标签<code>&lt;repostiories&gt;</code>中加入javacv的远程仓库地址：</p>
+<div class="highlight"><pre><span class="nt">&lt;repository&gt;</span>
+   <span class="nt">&lt;id&gt;</span>javacv repo<span class="nt">&lt;/id&gt;</span>
+   <span class="nt">&lt;url&gt;</span> http://maven2.javacv.googlecode.com/git/<span class="nt">&lt;/url&gt;</span>
+<span class="nt">&lt;/repository&gt;</span>
+</pre></div>
+
+
+<p>标签<code>&lt;dependencies&gt;</code>中加入javacv的相关依赖：</p>
+<div class="highlight"><pre><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>com.googlecode.javacv<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>javacv<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>0.6<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>com.googlecode ...</pre></div> <a class="btn btn-info xsmall" href="./pages/2013/12/16/javacv_detect_people.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="./pages/2013/12/13/xuggle_tutorial_1.html"><h2>Xuggler tutorial 1 使用xuggle进行视频操作（译+修改）</h2></a>
+        <div class= "well small"> Fri 13 December 2013
+
+by <a class="url fn" href="./author/xiaomengzhao.html">XiaomengZhao</a>
+ 
+
+
+ </div>
+        <div class="summary"><h6>原文网址：http://www.javacodegeeks.com/2011/02/introduction-xuggler-video-manipulation.html</h6>
+<p>随着互联网视频数量的爆发，开发者需要在他们的应用中非常频繁地操作视频数据。Xuggle为Java开发者提供的开源的库，能够解压，处理和压缩存储的视频数据和实时的现场直播的视频数据。Xuggle使用了非常强有力的FFmpeg媒体操作库，是FFPEG的Java Wrapper，使得开发能够使用Java更好的解压，修改媒体文件。</p>
+<p>FFmpeg是一个完整的，跨平台的用来记录，转换，流式化音频和视频文件，支持多种格式。可能您不清楚你在使用它，但是其实你已经在使用了。但是，Xuggle不仅仅是提供给你使用复杂的FFmpeg的简单方法。Xuggle dev团队还在帮助优化FFmpeg。</p>
+<p>然后我们需要安装FFmpeg。注意Xuggle自带了FFmpeg（优化过的）来避免错误的配置，所以你不需要自己手动的获取FFmpeg。但是在这个教程中，我们在使用Xuggle之前，需要使用FFmpeg测试一些操作，所以我们需要先分开安装FFmpeg。</p>
+<p>去<a href="http://ffmpeg.org/download.html">FFmpeg下载页</a>下载。Linux可以下载源代码然后编译（注：Linux其实也有编译好的包）。而Windows的话，可以下载编译好的二进制包，然后可以找到ffmpeg.exe执行程序。将它拷贝到特定目录 ...</p> <a class="btn btn-info xsmall" href="./pages/2013/12/13/xuggle_tutorial_1.html">read more</a></div>
+    </div>	
+				
+<div class="pagination">
+<ul>
+    <li class="prev"><a href="./index.html">&larr; Previous</a></li>
+
+    <li class=""><a href="./index.html">1</a></li>
+    <li class="active"><a href="./index2.html">2</a></li>
+
+    <li class="next disabled"><a href="#">&rarr; Next</a></li>
+
+</ul>
+</div>
+ 
+  
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+                <li><a href="xmpy.github.io/" rel="alternate">Atom feed</a></li>
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/code-snippets.html">Code Snippets</a></li>
+                <li><a href="./category/computer-vision.html">Computer Vision</a></li>
+                <li><a href="./category/javaxiang-guan-ji-zhu.html">Java相关技术</a></li>
+                <li><a href="./category/ji-chu-suan-fa.html">基础算法</a></li>
+                <li><a href="./category/qian-duan-ji-zhu-front-end.html">前端技术 Front-End</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="/archives.html">Archive</a></li>
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Xiaomeng's Notes</a> &copy; XiaomengZhao 2012</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="http://twitter.github.com/bootstrap/assets/js/bootstrap-collapse.js"></script>
+<a href="http://github.com/xmpy"><img style="position: absolute; top: 40px; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" /></a>
+ 
+</body>
+</html>
